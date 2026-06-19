@@ -7,3 +7,28 @@
 #description {
     -fx-text-fill: -fx-colors-text;
 }
+
+#logo {
+animation: breathe 3s infinite ease-in-out;
+}
+
+@keyframes breathe {
+    0% {
+        -fx-opacity: 0.7;
+        -fx-scale-x: 1.0;
+        -fx-scale-y: 1.0;
+        -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0.5, 0, 0);
+    }
+    50% {
+        -fx-opacity: 1.0;
+        -fx-scale-x: 1.05;
+        -fx-scale-y: 1.05;
+        -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 15, 0.7, 0, 0);
+    }
+    100% {
+        -fx-opacity: 0.7;
+        -fx-scale-x: 1.0;
+        -fx-scale-y: 1.0;
+        -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0.5, 0, 0);
+    }
+}

@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<HBox spacing="15.0" stylesheets="@userBlock.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<HBox spacing="15.0" stylesheets="@userBlock.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <StackPane prefHeight="32.0" prefWidth="32.0">
             <children>
                 <!-- Аватар игрока -->
                 <ImageView id="avatar" fitHeight="32.0" fitWidth="32.0" smooth="false">
                     <Image url="@../images/icons/default.png" />
+               <effect>
+                  <DropShadow />
+               </effect>
                 </ImageView>
                 <fx:include source="buttons/customization.fxml" />
             </children>
@@ -24,11 +25,7 @@
         <VBox>
             <children>
                 <!-- Никнейм игрока -->
-                <Label id="nickname" text="PLAYER123" />
-                <!-- Счет игрока -->
-                <Label id="role">
-                    <!-- <tooltip><Tooltip anchorLocation="WINDOW_BOTTOM_LEFT" text="%runtime.scenes.servermenu.moneyTooltip" /></tooltip> -->
-                </Label>
+                <Label id="nickname" prefHeight="34.0" prefWidth="76.0" text="PLAYER123" />
             </children>
         </VBox>
     </children>

@@ -43,3 +43,21 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+tasks.register<JavaExec>("runDev") {
+    dependsOn(tasks.assemble)
+    group = "Execution"
+    description = "Run the main class with JavaExecTask"
+
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("pro.gravit.launcher.runtime.debug.DebugMain")
+
+    jvmArgs(
+        "-Dlauncher.debug=true",
+        "-Dlauncher.stacktrace=true",
+        "-Dlauncher.dev=true",
+        "-Dlauncherdebug.modules=pro.gravit.launcher.gui.JavaRuntimeModule,pro.gravit.launcher.runtime.backend.LauncherBackendModule",
+        "-Dlauncherdebug.projectname=FLOPPALAND",
+        "-Dlauncherdebug.websocket=ws://localhost:9274/api"
+    )
+}

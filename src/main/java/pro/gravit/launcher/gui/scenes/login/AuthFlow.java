@@ -143,7 +143,7 @@ public class AuthFlow {
         });
     }
 
-    private CompletableFuture<SuccessAuth> start() {
+    public CompletableFuture<SuccessAuth> start() {
         CompletableFuture<SuccessAuth> result = new CompletableFuture<>();
         start(result, null, null);
         return result;

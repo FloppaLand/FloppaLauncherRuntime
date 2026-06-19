@@ -2,9 +2,6 @@
 .vline {
     -fx-background-color: -fx-glass;
 }
-#loginLeftPane{
-    -fx-padding: 32px;
-}
 /*-- Ввод данных --*/
 #login,
 PasswordField {
@@ -50,13 +47,11 @@ PasswordField:focused,
 }
 /*-- Поля --*/
 #login {
-      -fx-background-image:url('../../images/icons/user.png');
       -fx-background-repeat: no-repeat;
       -fx-background-position: left center;
       -fx-padding: 0 0 0 24px;
 }
 PasswordField, #totp {
-      -fx-background-image:url('../../images/icons/lock.png');
       -fx-background-repeat: no-repeat;
       -fx-background-position: left center;
       -fx-padding: 0 0 0 24px;
@@ -71,17 +66,6 @@ PasswordField, #totp {
 #createAccount:hover,
 #createAccount:pressed {
     -fx-fill: -fx-green-hover;
-    -fx-cursor: hand;
-}
-#forgotPass {
-    -fx-font-weight: bold;
-    -fx-font-size: 9px;
-    -fx-text-align: right;
-    -fx-fill: -fx-colors-text-secondary;
-}
-#forgotPass:hover,
-#forgotPass:pressed {
-    -fx-fill: -fx-colors-text-hover;
     -fx-cursor: hand;
 }
 .textLogin {
