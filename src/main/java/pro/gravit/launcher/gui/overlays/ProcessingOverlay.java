@@ -11,7 +11,6 @@ import pro.gravit.launcher.gui.core.impl.FxOverlay;
 import javafx.animation.ScaleTransition;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
-import pro.gravit.launcher.gui.JavaFXApplication;
 import pro.gravit.launcher.gui.helper.LookupHelper;
 import pro.gravit.launcher.gui.core.impl.FxStage;
 import pro.gravit.launcher.gui.core.impl.ContextHelper;
@@ -51,7 +50,6 @@ public class ProcessingOverlay extends FxOverlay {
         breathing.setCycleCount(ScaleTransition.INDEFINITE);  // Бесконечное повторение
         breathing.play();
     }
-
 
     @Override
     public void reset() {
