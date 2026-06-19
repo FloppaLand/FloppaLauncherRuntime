@@ -8,3 +8,6 @@
 #playerName {
     -fx-text-fill: -fx-colors-text;
 }
+#playerHead {
+    -fx-border-radius: 30px;
+}

@@ -1,8 +1,12 @@
 package pro.gravit.launcher.gui.overlays;
 
+import javafx.animation.Interpolator;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Labeled;
+import javafx.animation.ScaleTransition;
+import javafx.scene.image.ImageView;
+import javafx.util.Duration;
 import pro.gravit.launcher.gui.JavaFXApplication;
 import pro.gravit.launcher.gui.helper.LookupHelper;
 import pro.gravit.launcher.gui.impl.AbstractStage;
@@ -16,6 +20,7 @@ import java.util.function.Consumer;
 
 public class ProcessingOverlay extends AbstractOverlay {
     private Labeled description;
+    private ImageView logo;
 
     public ProcessingOverlay(JavaFXApplication application) {
         super("overlay/processing/processing.fxml", application);
@@ -30,7 +35,18 @@ public class ProcessingOverlay extends AbstractOverlay {
     protected void doInit() {
         // spinner = LookupHelper.lookup(pane, "#spinner"); //TODO: DrLeonardo?
         description = LookupHelper.lookup(layout, "#description");
+        logo = LookupHelper.lookup(layout, "#logo");
+        ScaleTransition breathing = new ScaleTransition(Duration.seconds(0.3), logo);
+        breathing.setFromX(1.0);
+        breathing.setFromY(1.0);
+        breathing.setToX(1.2);  // Увеличение на 20%
+        breathing.setToY(1.2);
+        breathing.setAutoReverse(true);  // Автоматическое обратное воспроизведение
+        breathing.setInterpolator(Interpolator.EASE_BOTH);
+        breathing.setCycleCount(ScaleTransition.INDEFINITE);  // Бесконечное повторение
+        breathing.play();
     }
+
 
     @Override
     public void reset() {

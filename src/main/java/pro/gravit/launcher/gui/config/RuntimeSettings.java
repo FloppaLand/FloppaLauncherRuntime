@@ -84,7 +84,8 @@ public class RuntimeSettings extends UserSettings {
 
     public enum LAUNCHER_THEME {
         @LauncherNetworkAPI COMMON(null, "default"),
-        @LauncherNetworkAPI DARK("dark", "dark");
+        @LauncherNetworkAPI DARK("dark", "dark"),
+        @LauncherNetworkAPI CREATE("create", "create");
         public final String name;
         public final String displayName;
 

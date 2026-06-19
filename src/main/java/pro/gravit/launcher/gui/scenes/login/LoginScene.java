@@ -71,10 +71,10 @@ public class LoginScene extends AbstractScene {
                         .setOnMouseClicked((e) -> application.openURL(application.guiModuleConfig.createAccountURL));
         }
 
-        if (application.guiModuleConfig.forgotPassURL != null) {
-            LookupHelper.<Text>lookup(header, "#forgotPass")
-                        .setOnMouseClicked((e) -> application.openURL(application.guiModuleConfig.forgotPassURL));
-        }
+        //if (application.guiModuleConfig.forgotPassURL != null) {
+        //    LookupHelper.<Text>lookup(header, "#forgotPass")
+        //                .setOnMouseClicked((e) -> application.openURL(application.guiModuleConfig.forgotPassURL));
+        //}
         authList = LookupHelper.lookup(layout, "#authList");
         authList.setConverter(new AuthAvailabilityStringConverter());
         authList.setOnAction((e) -> changeAuthAvailability(authList.getSelectionModel().getSelectedItem()));

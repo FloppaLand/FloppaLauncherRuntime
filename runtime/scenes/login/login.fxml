@@ -12,68 +12,76 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane id="layout" fx:id="loginPane" prefHeight="560.0" prefWidth="930.0" styleClass="background" stylesheets="@login.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
 
-    <!-- Вертикальная полоса -->
-    <AnchorPane id="loginLeftPane" prefWidth="380.0" styleClass="vline" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <VBox alignment="CENTER" layoutX="35.0" layoutY="366.0" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-            <children>
-            <FlowPane alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" orientation="VERTICAL" prefHeight="320.0">
-               <children>
-                    <ImageView id="logo" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                            <Image url="@../../images/logo.png" />
-                        </image>
-                    </ImageView>
-               </children>
-            </FlowPane>
-                <VBox spacing="10.0">
-                    <children>
-                        <!-- Чекбоксы -->
-                        <CheckBox id="autoenter" prefHeight="18.0" prefWidth="276.0" text="%runtime.scenes.login.autoenter" wrapText="true">
-                            <padding>
-                                <Insets left="5.0" />
-                            </padding>
-                        </CheckBox>
-                        <CheckBox id="savePassword" prefHeight="18.0" prefWidth="276.0" text="%runtime.scenes.login.savePassword" wrapText="true">
-                            <padding>
-                                <Insets left="5.0" />
-                            </padding>
-                        </CheckBox>
-                    </children>
-                    <padding>
-                        <Insets left="20.0" />
-                    </padding>
-                </VBox>
-                <ComboBox id="authList" maxWidth="1.7976931348623157E308" minHeight="60.0" />
-            </children>
-        </VBox>
-    </AnchorPane>
+<AnchorPane id="layout" fx:id="loginPane" prefHeight="560.0" prefWidth="930.0" styleClass="background" stylesheets="@login.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <AnchorPane id="header" prefHeight="80.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <!-- Кнопки управления -->
         <HBox id="controls" spacing="10.0" AnchorPane.rightAnchor="29.0" AnchorPane.topAnchor="34.0">
             <!-- Ссылки -->
-            <Pane id="links">
-                <Rectangle height="28.0" layoutX="72.0" layoutY="2.0" strokeType="INSIDE" width="1.0" x="0.5" />
-                <Text id="forgotPass" layoutY="13.0" text="%runtime.scenes.login.forgotPass" textAlignment="RIGHT" wrappingWidth="65.0" />
-            </Pane>
+            <Pane id="links" />
             <FlowPane id="registerPane" alignment="CENTER" prefHeight="32.0" prefWrapLength="0.0">
                 <Text styleClass="textLogin" text="%runtime.scenes.login.textLogin" />
                 <Text id="createAccount" text="%runtime.scenes.login.createAccount" />
             </FlowPane>
 
-            <fx:include source="../../components/buttons/settings.fxml" />
+                                       <fx:include source="../../components/buttons/settings.fxml" />
             <fx:include source="../../components/buttons/minimize.fxml" />
             <fx:include source="../../components/buttons/exit.fxml" />
         </HBox>
     </AnchorPane>
-    <VBox alignment="CENTER_LEFT" fillWidth="false" layoutX="330.0" layoutY="100.0" pickOnBounds="false" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="412.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
+    <VBox alignment="CENTER" fillWidth="false" layoutX="3.0" layoutY="82.0" pickOnBounds="false" prefHeight="473.0" prefWidth="920.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="82.0">
         <children>
-            <StackPane id="content" />
-            <Button id="authButton" defaultButton="true" prefHeight="20.0" prefWidth="300.0" styleClass="unactiveButton" text="%runtime.scenes.login.goAuth" />
+           <VBox alignment="CENTER">
+               <children>
+               <FlowPane alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" orientation="VERTICAL" prefHeight="71.0" prefWidth="922.0">
+                  <children>
+                       <ImageView id="logo" fitHeight="64.0" fitWidth="473.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                               <Image url="@../../images/title.png" />
+                           </image>
+                       </ImageView>
+                  </children>
+                  <padding>
+                     <Insets bottom="30.0" />
+                  </padding>
+               </FlowPane>
+               <AnchorPane prefWidth="735.0">
+                  <children>
+                     <VBox alignment="CENTER" layoutX="307.0" prefWidth="308.0" spacing="10.0">
+                        <children>
+                              <StackPane id="content" />
+                              <Button id="authButton" defaultButton="true" prefHeight="51.0" prefWidth="313.0" styleClass="unactiveButton" text="%runtime.scenes.login.goAuth" />
+                        </children>
+                        <padding>
+                           <Insets bottom="20.0" />
+                        </padding>
+                     </VBox>
+                  </children>
+               </AnchorPane>
+               <AnchorPane prefWidth="922.0">
+                  <children>
+                         <VBox alignment="CENTER" layoutX="208.0" prefWidth="473.0" spacing="10.0">
+                             <children>
+                                 <!-- Чекбоксы -->
+                                 <CheckBox id="autoenter" prefHeight="18.0" prefWidth="276.0" text="%runtime.scenes.login.autoenter" wrapText="true">
+                                     <padding>
+                                         <Insets left="5.0" />
+                                     </padding>
+                                 </CheckBox>
+                                 <CheckBox id="savePassword" prefHeight="18.0" prefWidth="276.0" text="%runtime.scenes.login.savePassword" wrapText="true">
+                                     <padding>
+                                         <Insets left="5.0" />
+                                     </padding>
+                                 </CheckBox>
+                               <ComboBox id="authList" blendMode="SRC_ATOP" maxWidth="1.7976931348623157E308" minHeight="60.0" prefHeight="60.0" prefWidth="837.0" />
+                             </children>
+                         </VBox>
+                  </children>
+               </AnchorPane>
+               </children>
+           </VBox>
         </children>
     </VBox>
 </AnchorPane>

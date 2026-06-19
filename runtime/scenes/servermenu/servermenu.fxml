@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 
-<AnchorPane fx:id="serverPane" prefHeight="560.0" prefWidth="930.0" styleClass="background" stylesheets="@servermenu.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane fx:id="serverPane" prefHeight="560.0" prefWidth="930.0" styleClass="background" stylesheets="@servermenu.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <!-- Навбар -->
     <AnchorPane id="header" prefHeight="80.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <Pane id="userBlock" AnchorPane.leftAnchor="74.0" AnchorPane.topAnchor="34.0">
@@ -18,6 +20,15 @@
             <fx:include source="../../components/buttons/minimize.fxml" />
             <fx:include source="../../components/buttons/exit.fxml" />
         </HBox>
+      <Pane layoutX="302.0" layoutY="26.0" prefHeight="50.0" prefWidth="327.0">
+         <children>
+            <ImageView fitHeight="80.0" fitWidth="320.0" layoutX="3.0" layoutY="9.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../images/title.png" />
+               </image>
+            </ImageView>
+         </children>
+      </Pane>
     </AnchorPane>
 
     <!-- Блок списка серверов -->
