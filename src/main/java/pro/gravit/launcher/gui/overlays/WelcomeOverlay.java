@@ -1,15 +1,21 @@
 package pro.gravit.launcher.gui.overlays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import pro.gravit.launcher.gui.JavaFXApplication;
-import pro.gravit.launcher.gui.config.DesignConstants;
+import pro.gravit.launcher.gui.core.JavaFXApplication;
+import pro.gravit.launcher.gui.DesignConstants;
+import pro.gravit.launcher.gui.core.impl.FxOverlay;
 import pro.gravit.launcher.gui.helper.LookupHelper;
-import pro.gravit.launcher.gui.utils.JavaFxUtils;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.core.utils.JavaFxUtils;
 
-public class WelcomeOverlay extends AbstractOverlay {
+public class WelcomeOverlay extends FxOverlay {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(WelcomeOverlay.class);
+
     private Image originalImage;
     public WelcomeOverlay(JavaFXApplication application) {
         super("overlay/welcome/welcome.fxml", application);
@@ -28,7 +34,7 @@ public class WelcomeOverlay extends AbstractOverlay {
     @Override
     public void reset() {
         LookupHelper.<Label>lookupIfPossible(layout, "#playerName")
-                    .ifPresent((e) -> e.setText(application.authService.getUsername()));
+                    .ifPresent((e) -> e.textProperty().bind(application.authService.username));
         LookupHelper.<ImageView>lookupIfPossible(layout, "#playerHead").ifPresent((h) -> {
             try {
                 JavaFxUtils.setStaticRadius(h, DesignConstants.AVATAR_IMAGE_RADIUS);
@@ -43,7 +49,7 @@ public class WelcomeOverlay extends AbstractOverlay {
                     h.setImage(originalImage);
                 }
             } catch (Throwable e) {
-                LogHelper.warning("Skin head error");
+                logger.warn("Skin head error");
             }
         });
     }

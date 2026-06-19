@@ -1,20 +1,21 @@
 package pro.gravit.launcher.gui.scenes.update;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
-import pro.gravit.launcher.gui.JavaFXApplication;
+import pro.gravit.launcher.core.backend.LauncherBackendAPI;
+import pro.gravit.launcher.gui.core.JavaFXApplication;
 import pro.gravit.launcher.gui.helper.LookupHelper;
-import pro.gravit.launcher.gui.scenes.AbstractScene;
-import pro.gravit.launcher.core.hasher.FileNameMatcher;
-import pro.gravit.launcher.core.hasher.HashedDir;
-import pro.gravit.launcher.base.profiles.optional.OptionalView;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.core.impl.FxScene;
 
-import java.nio.file.Path;
 import java.util.concurrent.CompletionException;
-import java.util.function.Consumer;
 
-public class UpdateScene extends AbstractScene {
+public class UpdateScene extends FxScene {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(UpdateScene.class);
+
     private ProgressBar progressBar;
     private Label speed;
     private Label volume;
@@ -25,10 +26,10 @@ public class UpdateScene extends AbstractScene {
     private Pane speedon;
 
     private VisualDownloader downloader;
-    private volatile DownloadStatus downloadStatus = DownloadStatus.COMPLETE;
 
     public UpdateScene(JavaFXApplication application) {
         super("scenes/update/update.fxml", application);
+        this.isResetOnShow = true;
     }
 
     @Override
@@ -41,10 +42,16 @@ public class UpdateScene extends AbstractScene {
         cancel = LookupHelper.lookup(layout, "#cancel");
         volume = LookupHelper.lookup(layout, "#volume");
         logOutput = LookupHelper.lookup(layout, "#outputUpdate");
-        downloader = new VisualDownloader(application, progressBar, speed, volume, this::errorHandle,
-                                          (log) -> contextHelper.runInFxThread(() -> addLog(log)), this::onUpdateStatus);
+        downloader = new VisualDownloader(application, progressBar, speed, volume,
+                                          (log) -> contextHelper.runInFxThread(() -> addLog(log)));
         LookupHelper.<ButtonBase>lookup(layout, "#cancel").setOnAction((e) -> {
-            if (downloadStatus == DownloadStatus.DOWNLOAD && downloader.isDownload()) {
+            downloader.cancel();
+            try {
+                switchToBackScene();
+            } catch (Exception exception) {
+                errorHandle(exception);
+            }
+            /*if (downloadStatus == DownloadStatus.DOWNLOAD && downloader.isDownload()) {
                 downloader.cancel();
             } else if(downloadStatus == DownloadStatus.ERROR || downloadStatus == DownloadStatus.COMPLETE) {
                 try {
@@ -52,27 +59,16 @@ public class UpdateScene extends AbstractScene {
                 } catch (Exception exception) {
                     errorHandle(exception);
                 }
-            }
+            }*/
         });
     }
 
-    private void onUpdateStatus(DownloadStatus newStatus) {
-        this.downloadStatus = newStatus;
-        LogHelper.debug("Update download status: %s", newStatus.toString());
-    }
-
-    public void sendUpdateAssetRequest(String dirName, Path dir, FileNameMatcher matcher, boolean digest,
-            String assetIndex, boolean test, Consumer<HashedDir> onSuccess) {
-        downloader.sendUpdateAssetRequest(dirName, dir, matcher, digest, assetIndex, test, onSuccess);
-    }
-
-    public void sendUpdateRequest(String dirName, Path dir, FileNameMatcher matcher, boolean digest, OptionalView view,
-            boolean optionalsEnabled, boolean test, Consumer<HashedDir> onSuccess) {
-        downloader.sendUpdateRequest(dirName, dir, matcher, digest, view, optionalsEnabled, test, onSuccess);
+    public LauncherBackendAPI.DownloadCallback makeDownloadCallback() {
+        return downloader;
     }
 
     public void addLog(String string) {
-        LogHelper.dev("Update event %s", string);
+        logger.info("Update event {}", string);
         logOutput.appendText(string.concat("\n"));
     }
 
@@ -96,7 +92,7 @@ public class UpdateScene extends AbstractScene {
         progressBar.getStyleClass().add("progressError");
         speederr.setVisible(true);
         speedon.setVisible(false);
-        LogHelper.error(e);
+        logger.error("", e);
     }
 
     @Override

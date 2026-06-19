@@ -1,24 +1,35 @@
 package pro.gravit.launcher.gui.scenes.login.methods;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
-import pro.gravit.launcher.gui.JavaFXApplication;
+import javafx.scene.control.Label;
+
+import java.awt.Desktop;
+import java.net.URI;
+
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import pro.gravit.launcher.core.api.method.details.AuthWebDetails;
+import pro.gravit.launcher.core.api.method.password.AuthOAuthPassword;
+import pro.gravit.launcher.gui.core.JavaFXApplication;
 import pro.gravit.launcher.gui.helper.LookupHelper;
-import pro.gravit.launcher.gui.overlays.AbstractOverlay;
+import pro.gravit.launcher.gui.core.impl.FxOverlay;
 import pro.gravit.launcher.gui.scenes.login.AuthFlow;
 import pro.gravit.launcher.gui.scenes.login.LoginScene;
-import pro.gravit.launcher.base.request.auth.details.AuthWebViewDetails;
-import pro.gravit.launcher.base.request.auth.password.AuthCodePassword;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-public class WebAuthMethod extends AbstractAuthMethod<AuthWebViewDetails> {
+public class WebAuthMethod extends AbstractAuthMethod<AuthWebDetails> {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(WebAuthMethod.class);
+
     WebAuthOverlay overlay;
     private final JavaFXApplication application;
     private final LoginScene.LoginSceneAccessor accessor;
@@ -41,7 +52,7 @@ public class WebAuthMethod extends AbstractAuthMethod<AuthWebViewDetails> {
     }
 
     @Override
-    public CompletableFuture<Void> show(AuthWebViewDetails details) {
+    public CompletableFuture<Void> show(AuthWebDetails details) {
         CompletableFuture<Void> future = new CompletableFuture<>();
         try {
             accessor.showOverlay(overlay, (e) -> future.complete(null));
@@ -52,11 +63,11 @@ public class WebAuthMethod extends AbstractAuthMethod<AuthWebViewDetails> {
     }
 
     @Override
-    public CompletableFuture<AuthFlow.LoginAndPasswordResult> auth(AuthWebViewDetails details) {
+    public CompletableFuture<AuthFlow.LoginAndPasswordResult> auth(AuthWebDetails details) {
         overlay.future = new CompletableFuture<>();
-        overlay.follow(details.url, details.redirectUrl, (r) -> {
-            LogHelper.dev("Redirect uri: %s", r);
-            overlay.future.complete(new AuthFlow.LoginAndPasswordResult(null, new AuthCodePassword(r)));
+        overlay.follow(details.url(), details.redirectUrl(), (r) -> {
+            logger.info("Redirect uri: {}", r);
+            overlay.future.complete(new AuthFlow.LoginAndPasswordResult(null, new AuthOAuthPassword(r)));
         });
         return overlay.future;
     }
@@ -82,8 +93,10 @@ public class WebAuthMethod extends AbstractAuthMethod<AuthWebViewDetails> {
         return true;
     }
 
-    public static class WebAuthOverlay extends AbstractOverlay {
+    public static class WebAuthOverlay extends FxOverlay {
         private WebView webView;
+        private Button submitBtn;
+        private Label codeLabel;
         private LoginScene.LoginSceneAccessor accessor;
         private CompletableFuture<AuthFlow.LoginAndPasswordResult> future;
 
@@ -102,35 +115,57 @@ public class WebAuthMethod extends AbstractAuthMethod<AuthWebViewDetails> {
 
         @Override
         protected void doInit() {
-            ScrollPane webViewPane = LookupHelper.lookup(layout, "#webview");
-            webView = new WebView();
-            webViewPane.setContent(new VBox(webView));
-            LookupHelper.<Button>lookup(layout, "#exit").setOnAction((e) -> {
-                if (future != null) {
-                    future.completeExceptionally(new UserAuthCanceledException());
+            submitBtn = LookupHelper.lookup(layout, "#submit");
+            codeLabel = LookupHelper.lookup(layout, "#link");
+            LookupHelper.<Button>lookupIfPossible(layout, "#close").ifPresent((b) -> b.setOnAction((e) -> {
+                // Завершаем future с отменой чтобы AuthFlow мог сбросить состояние
+                if (future != null && !future.isDone()) {
+                    future.completeExceptionally(new AbstractAuthMethod.UserAuthCanceledException());
                 }
-                hide(null);
-            });
+                hide(0, null);
+            }));
+
+            // submit behavior handled in follow() to support device flow marker
+            submitBtn.setOnAction((e) -> {});
         }
 
         public void follow(String url, String redirectUrl, Consumer<String> redirectCallback) {
-            LogHelper.dev("Load url %s", url);
-            webView.getEngine().setJavaScriptEnabled(true);
-            webView.getEngine().load(url);
-            if (redirectCallback != null) {
-                webView.getEngine().locationProperty().addListener((obs, oldLocation, newLocation) -> {
-                    if (newLocation != null) {
-                        LogHelper.dev("Location: %s", newLocation);
-                        if (redirectUrl != null) {
-                            if (newLocation.startsWith(redirectUrl)) {
-                                redirectCallback.accept(newLocation);
-                            }
-                        } else {
-                            redirectCallback.accept(newLocation);
+            logger.info("Open external browser with URL {}", url);
+            // detect device flow marker in redirectUrl
+            if (redirectUrl != null && redirectUrl.startsWith("device:")) {
+                String[] parts = redirectUrl.split(":", 3);
+                String deviceCode = parts.length > 1 ? parts[1] : null;
+                String userCode = parts.length > 2 ? parts[2] : null;
+                if (userCode != null) {
+                    codeLabel.setText("Code: " + userCode);
+                    codeLabel.setUserData("device:" + (deviceCode != null ? deviceCode : ""));
+                    codeLabel.setOnMouseClicked(evt -> {
+                        try {
+                            Clipboard clipboard = Clipboard.getSystemClipboard();
+                            ClipboardContent content = new ClipboardContent();
+                            content.putString(userCode);
+                            clipboard.setContent(content);
+                            codeLabel.setText("Code: " + userCode + " (copied)");
+                        } catch (Exception ex) {
+                            accessor.errorHandle(ex);
                         }
-                    }
-                });
+                    });
+                }
+            } else {
+                codeLabel.setText("");
+                codeLabel.setUserData(null);
             }
+            // try to open immediately
+            try {
+                if (Desktop.isDesktopSupported()) Desktop.getDesktop().browse(new URI(url));
+            } catch (Exception ex) {
+                accessor.errorHandle(ex);
+            }
+            // when user clicks submit, prefer pasted URL; if empty and device marker present, use marker
+            submitBtn.setOnAction((e) -> {
+                String marker = (String) codeLabel.getUserData();
+                if (redirectCallback != null) redirectCallback.accept(marker);
+            });
         }
 
         public WebView getWebView() {

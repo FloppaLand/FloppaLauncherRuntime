@@ -5,11 +5,11 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import pro.gravit.launcher.base.profiles.optional.OptionalFile;
-import pro.gravit.launcher.base.profiles.optional.OptionalView;
-import pro.gravit.launcher.gui.JavaFXApplication;
+import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
+import pro.gravit.launcher.core.backend.LauncherBackendAPI;
+import pro.gravit.launcher.gui.core.JavaFXApplication;
 
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,16 +19,15 @@ public class OptionsTab {
     private final TabPane tabPane;
     private final JavaFXApplication application;
     private final Map<String, Tab> tabs = new HashMap<>();
-    private OptionalView optionalView;
-    private final Map<OptionalFile, Consumer<Boolean>> watchers = new HashMap<>();
+    private final Map<ProfileFeatureAPI.OptionalMod, Consumer<Boolean>> watchers = new HashMap<>();
 
     public OptionsTab(JavaFXApplication application, TabPane tabPane) {
         this.tabPane = tabPane;
         this.application = application;
     }
 
-    void callWatcher(OptionalFile file, Boolean value) {
-        for (Map.Entry<OptionalFile, Consumer<Boolean>> v : watchers.entrySet()) {
+    void callWatcher(ProfileFeatureAPI.OptionalMod file, Boolean value) {
+        for (Map.Entry<ProfileFeatureAPI.OptionalMod, Consumer<Boolean>> v : watchers.entrySet()) {
             if (v.getKey() == file) {
                 v.getValue().accept(value);
                 break;
@@ -36,21 +35,36 @@ public class OptionsTab {
         }
     }
 
-    public void addProfileOptionals(OptionalView view) {
-        this.optionalView = new OptionalView(view);
+    public void addProfileOptionals(LauncherBackendAPI.ClientProfileSettings profileSettings) {
         watchers.clear();
-        for (OptionalFile optionalFile : optionalView.all) {
-            if (!optionalFile.visible) continue;
-            List<String> libraries = optionalFile.dependencies == null ? List.of() : Arrays.stream(
-                    optionalFile.dependencies).map(OptionalFile::getName).toList();
+
+        List<ProfileFeatureAPI.OptionalMod> sorted = profileSettings.getAllOptionals()
+                                                                    .stream()
+                                                                    .filter(ProfileFeatureAPI.OptionalMod::isVisible)
+                                                                    .sorted(Comparator
+                                                                                    .comparingInt(ProfileFeatureAPI.OptionalMod::getDepth)
+                                                                                    .thenComparing(m -> m.getCategory() == null ? "" : m.getCategory())
+                                                                                    .thenComparing(ProfileFeatureAPI.OptionalMod::getName))
+                                                                    .toList();
+
+        for (ProfileFeatureAPI.OptionalMod optionalFile : sorted) {
+            List<String> libraries = optionalFile.getDependencies() == null ? List.of() :
+                    optionalFile.getDependencies()
+                                .stream()
+                                .filter(ProfileFeatureAPI.OptionalMod::isVisible)
+                                .map(ProfileFeatureAPI.OptionalMod::getName)
+                                .toList();
+
 
             Consumer<Boolean> setCheckBox =
-                    add(optionalFile.category == null ? "GLOBAL" : optionalFile.category, optionalFile.name,
-                        optionalFile.info, optionalView.enabled.contains(optionalFile),
-                        optionalFile.subTreeLevel,
+                    add(optionalFile.getCategory() == null ? "GLOBAL" : optionalFile.getCategory(),
+                        optionalFile.getName(),
+                        optionalFile.getDescription(),
+                        profileSettings.getEnabledOptionals().contains(optionalFile),
+                        optionalFile.getDepth(),
                         (isSelected) -> {
-                            if (isSelected) optionalView.enable(optionalFile, true, this::callWatcher);
-                            else optionalView.disable(optionalFile, this::callWatcher);
+                            if (isSelected) profileSettings.enableOptional(optionalFile, this::callWatcher);
+                            else profileSettings.disableOptional(optionalFile, this::callWatcher);
                         }, libraries);
             watchers.put(optionalFile, setCheckBox);
         }
@@ -76,7 +90,7 @@ public class OptionsTab {
         Label label = new Label();
         vBox.getChildren().add(checkBox);
         vBox.getChildren().add(label);
-        VBox.setMargin(vBox, new Insets(0, 0, 0, 30 * --padding));
+        VBox.setMargin(vBox, new Insets(0, 0, 0, 15 * padding));
         vBox.setOnMouseClicked((e) -> {
             if (e.getButton() == MouseButton.PRIMARY) {
                 checkBox.setSelected(!checkBox.isSelected());
@@ -125,9 +139,5 @@ public class OptionsTab {
     public void clear() {
         tabPane.getTabs().clear();
         tabs.clear();
-    }
-
-    public OptionalView getOptionalView() {
-        return optionalView;
     }
 }

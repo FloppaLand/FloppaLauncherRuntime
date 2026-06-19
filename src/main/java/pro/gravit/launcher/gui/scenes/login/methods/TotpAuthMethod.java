@@ -1,14 +1,15 @@
 package pro.gravit.launcher.gui.scenes.login.methods;
 
 import javafx.scene.control.TextField;
-import pro.gravit.launcher.gui.JavaFXApplication;
+import pro.gravit.launcher.base.request.auth.password.AuthTOTPPassword;
+import pro.gravit.launcher.core.api.method.details.AuthTotpDetails;
+import pro.gravit.launcher.core.api.method.password.AuthTotpPassword;
+import pro.gravit.launcher.gui.core.JavaFXApplication;
 import pro.gravit.launcher.gui.helper.LookupHelper;
-import pro.gravit.launcher.gui.impl.AbstractVisualComponent;
-import pro.gravit.launcher.gui.impl.ContextHelper;
+import pro.gravit.launcher.gui.core.impl.FxComponent;
+import pro.gravit.launcher.gui.core.impl.ContextHelper;
 import pro.gravit.launcher.gui.scenes.login.AuthFlow;
 import pro.gravit.launcher.gui.scenes.login.LoginScene;
-import pro.gravit.launcher.base.request.auth.details.AuthTotpDetails;
-import pro.gravit.launcher.base.request.auth.password.AuthTOTPPassword;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -36,7 +37,7 @@ public class TotpAuthMethod extends AbstractAuthMethod<AuthTotpDetails> {
 
     @Override
     public CompletableFuture<Void> show(AuthTotpDetails details) {
-        overlay.maxLength = details.maxKeyLength;
+        overlay.maxLength = 6;
         CompletableFuture<Void> future = new CompletableFuture<>();
         try {
             ContextHelper.runInFxThreadStatic(() -> {
@@ -52,12 +53,7 @@ public class TotpAuthMethod extends AbstractAuthMethod<AuthTotpDetails> {
     @Override
     public CompletableFuture<AuthFlow.LoginAndPasswordResult> auth(AuthTotpDetails details) {
         overlay.future = new CompletableFuture<>();
-        String totp = overlay.getCode();
-        if (totp != null && !totp.isEmpty()) {
-            AuthTOTPPassword totpPassword = new AuthTOTPPassword();
-            totpPassword.totp = totp;
-            return CompletableFuture.completedFuture(new AuthFlow.LoginAndPasswordResult(null, totpPassword));
-        }
+        accessor.runInFxThread(() -> overlay.totpField.clear());
         return overlay.future;
     }
 
@@ -81,7 +77,7 @@ public class TotpAuthMethod extends AbstractAuthMethod<AuthTotpDetails> {
         return true;
     }
 
-    public static class TotpOverlay extends AbstractVisualComponent {
+    public static class TotpOverlay extends FxComponent {
         private static final UserAuthCanceledException USER_AUTH_CANCELED_EXCEPTION = new UserAuthCanceledException();
         private TextField totpField;
         private CompletableFuture<AuthFlow.LoginAndPasswordResult> future;
@@ -118,8 +114,10 @@ public class TotpAuthMethod extends AbstractAuthMethod<AuthTotpDetails> {
         }
 
         public void complete() {
+            String code = getCode();
+            if (code == null || code.isEmpty()) return;
             AuthTOTPPassword totpPassword = new AuthTOTPPassword();
-            totpPassword.totp = getCode();
+            totpPassword.totp = code;
             future.complete(new AuthFlow.LoginAndPasswordResult(null, totpPassword));
         }
 
@@ -133,8 +131,13 @@ public class TotpAuthMethod extends AbstractAuthMethod<AuthTotpDetails> {
 
         @Override
         public void reset() {
-            if(totpField == null) return;
-            totpField.setText("");
+            if (totpField != null) {
+                accessor.runInFxThread(() -> totpField.clear());
+            }
+            if (future != null && !future.isDone()) {
+                future.completeExceptionally(new UserAuthCanceledException());
+            }
+            future = null;
         }
 
         @Override

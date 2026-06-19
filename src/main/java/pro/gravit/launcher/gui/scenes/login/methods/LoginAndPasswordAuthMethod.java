@@ -1,20 +1,26 @@
 package pro.gravit.launcher.gui.scenes.login.methods;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javafx.scene.control.TextField;
-import pro.gravit.launcher.gui.JavaFXApplication;
+import pro.gravit.launcher.core.api.method.AuthMethodPassword;
+import pro.gravit.launcher.core.api.method.details.AuthPasswordDetails;
+import pro.gravit.launcher.core.api.method.password.AuthPlainPassword;
+import pro.gravit.launcher.gui.core.JavaFXApplication;
 import pro.gravit.launcher.gui.helper.LookupHelper;
-import pro.gravit.launcher.gui.impl.AbstractVisualComponent;
-import pro.gravit.launcher.gui.impl.ContextHelper;
+import pro.gravit.launcher.gui.core.impl.FxComponent;
+import pro.gravit.launcher.gui.core.impl.ContextHelper;
 import pro.gravit.launcher.gui.scenes.login.AuthFlow;
-import pro.gravit.launcher.gui.scenes.login.LoginAuthButtonComponent;
+import pro.gravit.launcher.gui.scenes.login.AuthButton;
 import pro.gravit.launcher.gui.scenes.login.LoginScene;
-import pro.gravit.launcher.base.request.auth.AuthRequest;
-import pro.gravit.launcher.base.request.auth.details.AuthPasswordDetails;
-import pro.gravit.utils.helper.LogHelper;
 
 import java.util.concurrent.CompletableFuture;
 
 public class LoginAndPasswordAuthMethod extends AbstractAuthMethod<AuthPasswordDetails> {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(LoginAndPasswordAuthMethod.class);
+
     private final LoginAndPasswordOverlay overlay;
     private final JavaFXApplication application;
     private final LoginScene.LoginSceneAccessor accessor;
@@ -43,7 +49,7 @@ public class LoginAndPasswordAuthMethod extends AbstractAuthMethod<AuthPasswordD
                 accessor.showContent(overlay);
                 future.complete(null);
             }).exceptionally((th) -> {
-                LogHelper.error(th);
+                logger.error("", th);
                 return null;
             });
         } catch (Exception e) {
@@ -56,7 +62,7 @@ public class LoginAndPasswordAuthMethod extends AbstractAuthMethod<AuthPasswordD
     public CompletableFuture<AuthFlow.LoginAndPasswordResult> auth(AuthPasswordDetails details) {
         overlay.future = new CompletableFuture<>();
         String login = overlay.login.getText();
-        AuthRequest.AuthPasswordInterface password;
+        AuthMethodPassword password;
         if (overlay.password.getText().isEmpty() && overlay.password.getPromptText().equals(application.getTranslation(
                 "runtime.scenes.login.password.saved"))) {
             password = application.runtimeSettings.password;
@@ -85,7 +91,7 @@ public class LoginAndPasswordAuthMethod extends AbstractAuthMethod<AuthPasswordD
         return false;
     }
 
-    public class LoginAndPasswordOverlay extends AbstractVisualComponent {
+    public class LoginAndPasswordOverlay extends FxComponent {
         private static final UserAuthCanceledException USER_AUTH_CANCELED_EXCEPTION = new UserAuthCanceledException();
         private TextField login;
         private TextField password;
@@ -103,7 +109,7 @@ public class LoginAndPasswordAuthMethod extends AbstractAuthMethod<AuthPasswordD
         public AuthFlow.LoginAndPasswordResult getResult() {
             String rawLogin = login.getText();
             String rawPassword = password.getText();
-            return new AuthFlow.LoginAndPasswordResult(rawLogin, application.authService.makePassword(rawPassword));
+            return new AuthFlow.LoginAndPasswordResult(rawLogin, new AuthPlainPassword(rawPassword));
         }
 
         @Override
@@ -112,14 +118,14 @@ public class LoginAndPasswordAuthMethod extends AbstractAuthMethod<AuthPasswordD
             password = LookupHelper.lookup(layout, "#password");
 
             login.textProperty().addListener(l -> accessor.getAuthButton().setState(login.getText().isEmpty()
-                                                                                            ? LoginAuthButtonComponent.AuthButtonState.UNACTIVE
-                                                                                            : LoginAuthButtonComponent.AuthButtonState.ACTIVE));
+                                                                                            ? AuthButton.AuthButtonState.UNACTIVE
+                                                                                            : AuthButton.AuthButtonState.ACTIVE));
 
             if (application.runtimeSettings.login != null) {
                 login.setText(application.runtimeSettings.login);
-                accessor.getAuthButton().setState(LoginAuthButtonComponent.AuthButtonState.ACTIVE);
+                accessor.getAuthButton().setState(AuthButton.AuthButtonState.ACTIVE);
             } else {
-                accessor.getAuthButton().setState(LoginAuthButtonComponent.AuthButtonState.UNACTIVE);
+                accessor.getAuthButton().setState(AuthButton.AuthButtonState.UNACTIVE);
             }
             if (application.runtimeSettings.password != null) {
                 password.getStyleClass().add("hasSaved");

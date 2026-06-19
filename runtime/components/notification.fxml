@@ -8,7 +8,7 @@
 <?import javafx.scene.shape.SVGPath?>
 
 
-<AnchorPane maxHeight="-Infinity" maxWidth="360.0" minHeight="-Infinity" prefWidth="360.0" styleClass="notification" stylesheets="@components.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxWidth="360.0" prefWidth="360.0" styleClass="notification" stylesheets="@components.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -22,7 +22,7 @@
                   <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <Label id="notificationHeading" maxWidth="256.0" text="%runtime.scenes.components.notification.notificationHeading" />
-                        <Label id="notificationText" maxWidth="256.0" text="%runtime.scenes.components.notification.notificationText" wrapText="true" />
+                        <Label id="notificationText" maxWidth="256.0" text="%runtime.scenes.components.notification.notificationText" wrapText="true" minHeight="-Infinity"/>
                      </children>
                   </VBox>
                </children>

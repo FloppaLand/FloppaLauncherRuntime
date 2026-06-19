@@ -1,5 +1,7 @@
 package pro.gravit.launcher.gui.components;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
@@ -7,36 +9,39 @@ import javafx.scene.control.Labeled;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import pro.gravit.launcher.gui.JavaFXApplication;
+import pro.gravit.launcher.core.api.features.ProfileFeatureAPI;
+import pro.gravit.launcher.gui.core.JavaFXApplication;
 import pro.gravit.launcher.gui.helper.LookupHelper;
-import pro.gravit.launcher.gui.impl.AbstractVisualComponent;
-import pro.gravit.launcher.gui.utils.JavaFxUtils;
-import pro.gravit.launcher.base.profiles.ClientProfile;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.core.impl.FxComponent;
+import pro.gravit.launcher.gui.core.utils.JavaFxUtils;
 
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class ServerButton extends AbstractVisualComponent {
+public class ServerButton extends FxComponent {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ServerButton.class);
+
     private static final String SERVER_BUTTON_FXML = "components/serverButton.fxml";
     private static final String SERVER_BUTTON_CUSTOM_FXML = "components/serverButton/%s.fxml";
     private static final String SERVER_BUTTON_DEFAULT_IMAGE = "images/servers/example.png";
     private static final String SERVER_BUTTON_CUSTOM_IMAGE = "images/servers/%s.png";
-    public ClientProfile profile;
+    public ProfileFeatureAPI.ClientProfile profile;
     private Button saveButton;
     private Button resetButton;
     private Region serverLogo;
 
-    protected ServerButton(JavaFXApplication application, ClientProfile profile) {
+    protected ServerButton(JavaFXApplication application, ProfileFeatureAPI.ClientProfile profile) {
         super(getServerButtonFxml(application, profile), application);
         this.profile = profile;
     }
 
-    public static ServerButton createServerButton(JavaFXApplication application, ClientProfile profile) {
+    public static ServerButton createServerButton(JavaFXApplication application, ProfileFeatureAPI.ClientProfile profile) {
         return new ServerButton(application, profile);
     }
 
-    private static String getServerButtonFxml(JavaFXApplication application, ClientProfile profile) {
+    private static String getServerButtonFxml(JavaFXApplication application, ProfileFeatureAPI.ClientProfile profile) {
         String customFxml = String.format(SERVER_BUTTON_CUSTOM_FXML, profile.getUUID().toString());
         URL fxml = application.tryResource(customFxml);
         if(fxml != null) {
@@ -52,8 +57,8 @@ public class ServerButton extends AbstractVisualComponent {
 
     @Override
     protected void doInit() {
-        LookupHelper.<Labeled>lookup(layout, "#nameServer").setText(profile.getTitle());
-        LookupHelper.<Labeled>lookup(layout, "#genreServer").setText(profile.getVersion().toString());
+        LookupHelper.<Labeled>lookup(layout, "#nameServer").setText(profile.getName());
+        LookupHelper.<Labeled>lookup(layout, "#genreServer").setText(profile.getMinecraftVersion());
         this.serverLogo = LookupHelper.lookup(layout, "#serverLogo");
         URL logo = application.tryResource(String.format(SERVER_BUTTON_CUSTOM_IMAGE, profile.getUUID().toString()));
         if(logo == null) {
@@ -74,15 +79,13 @@ public class ServerButton extends AbstractVisualComponent {
                 LookupHelper.<Labeled>lookup(layout, "#online").setText(String.valueOf(currentOnline.get()));
             }
         });
-        for (ClientProfile.ServerProfile serverProfile : profile.getServers()) {
-            application.pingService.getPingReport(serverProfile.name).thenAccept((report) -> {
-                if (report != null) {
-                    currentOnline.addAndGet(report.playersOnline);
-                    maxOnline.addAndGet(report.maxPlayers);
-                }
-                update.run();
-            });
-        }
+        application.pingService.getPingReport(profile.getUUID()).thenAccept((report) -> {
+            if (report != null) {
+                currentOnline.addAndGet(report.playersOnline);
+                maxOnline.addAndGet(report.maxPlayers);
+            }
+            update.run();
+        });
         saveButton = LookupHelper.lookup(layout, "#save");
         resetButton = LookupHelper.lookup(layout, "#reset");
     }
@@ -113,7 +116,7 @@ public class ServerButton extends AbstractVisualComponent {
             try {
                 init();
             } catch (Exception e) {
-                LogHelper.error(e);
+                logger.error("", e);
             }
         }
         pane.getChildren().add(layout);
@@ -124,7 +127,7 @@ public class ServerButton extends AbstractVisualComponent {
             try {
                 init();
             } catch (Exception e) {
-                LogHelper.error(e);
+                logger.error("", e);
             }
         }
         pane.getChildren().add(position, layout);

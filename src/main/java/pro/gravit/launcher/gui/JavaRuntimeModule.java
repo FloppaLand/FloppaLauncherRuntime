@@ -1,35 +1,41 @@
 package pro.gravit.launcher.gui;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javafx.stage.Stage;
+import pro.gravit.launcher.base.modules.LauncherInitContext;
+import pro.gravit.launcher.base.modules.LauncherModule;
+import pro.gravit.launcher.base.modules.LauncherModuleInfo;
 import pro.gravit.launcher.client.events.ClientExitPhase;
 import pro.gravit.launcher.client.events.ClientUnlockConsoleEvent;
-import pro.gravit.launcher.gui.service.OfflineService;
+import pro.gravit.launcher.core.backend.LauncherBackendAPIHolder;
+import pro.gravit.launcher.gui.core.JavaFXApplication;
+import pro.gravit.launcher.gui.core.StdJavaRuntimeProvider;
 import pro.gravit.launcher.runtime.LauncherEngine;
 import pro.gravit.launcher.runtime.client.events.ClientEngineInitPhase;
 import pro.gravit.launcher.runtime.client.events.ClientPreGuiPhase;
 import pro.gravit.launcher.runtime.gui.RuntimeProvider;
-import pro.gravit.launcher.base.modules.LauncherInitContext;
-import pro.gravit.launcher.base.modules.LauncherModule;
-import pro.gravit.launcher.base.modules.LauncherModuleInfo;
-import pro.gravit.launcher.base.modules.events.OfflineModeEvent;
-import pro.gravit.launcher.base.request.websockets.OfflineRequestService;
 import pro.gravit.utils.Version;
 import pro.gravit.utils.helper.JVMHelper;
-import pro.gravit.utils.helper.LogHelper;
 
 import javax.swing.*;
 import java.lang.reflect.Method;
 import java.util.Base64;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JavaRuntimeModule extends LauncherModule {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(JavaRuntimeModule.class);
 
     public final static String RUNTIME_NAME = "stdruntime";
     static LauncherEngine engine;
     private RuntimeProvider provider;
+    public static AtomicBoolean SHUTDOWN_STARTED = new AtomicBoolean(false);
 
     public JavaRuntimeModule() {
         super(new LauncherModuleInfo("StdJavaRuntime",
-                                     new Version(4, 0, 7, 1, Version.Type.STABLE),
+                                     new Version(5, 0, 0, 7, Version.Type.BETA),
                                      0, new String[]{}, new String[]{"runtime"}));
     }
 
@@ -56,14 +62,6 @@ public class JavaRuntimeModule extends LauncherModule {
                 Не найден файл языка '%s' при инициализации GUI. Дальнейшая работа невозможна.
                 Убедитесь что все файлы дизайна лаунчера присутствуют в папке runtime при сборке лаунчера
                 """.formatted(file);
-        JOptionPane.showMessageDialog(null, message, "GravitLauncher", JOptionPane.ERROR_MESSAGE);
-    }
-
-    public static void noEnFSAlert() {
-        String message = """
-                Запуск лаунчера невозможен из-за ошибки расшифровки рантайма.
-                Администраторам: установите библиотеку EnFS для исправления этой проблемы
-                """;
         JOptionPane.showMessageDialog(null, message, "GravitLauncher", JOptionPane.ERROR_MESSAGE);
     }
 
@@ -99,7 +97,6 @@ public class JavaRuntimeModule extends LauncherModule {
         registerEvent(this::engineInitPhase, ClientEngineInitPhase.class);
         registerEvent(this::exitPhase, ClientExitPhase.class);
         registerEvent(this::consoleUnlock, ClientUnlockConsoleEvent.class);
-        registerEvent(this::offlineMode, OfflineModeEvent.class);
     }
 
     private void preGuiPhase(ClientPreGuiPhase phase) {
@@ -115,7 +112,7 @@ public class JavaRuntimeModule extends LauncherModule {
             if (m.getDeclaringClass() != JavaFXApplication.class)
                 throw new RuntimeException("Method start not override");
         } catch (Throwable exception) {
-            LogHelper.error(exception);
+            logger.error("", exception);
             noInitMethodAlert();
             LauncherEngine.exitLauncher(0);
         }
@@ -129,21 +126,14 @@ public class JavaRuntimeModule extends LauncherModule {
         }
     }
 
-    private void offlineMode(OfflineModeEvent event) {
-        OfflineService.applyRuntimeProcessors((OfflineRequestService) event.service);
-    }
-
     private void engineInitPhase(ClientEngineInitPhase initPhase) {
         JavaRuntimeModule.engine = initPhase.engine;
     }
 
     private void exitPhase(ClientExitPhase exitPhase) {
-        if (provider != null && provider instanceof StdJavaRuntimeProvider stdJavaRuntimeProvider) {
-            try {
-                stdJavaRuntimeProvider.getApplication().saveSettings();
-            } catch (Throwable e) {
-                LogHelper.error(e);
-            }
+        boolean isAlreadyShutdown = SHUTDOWN_STARTED.getAndSet(true);
+        if(!isAlreadyShutdown && LauncherBackendAPIHolder.getApi() != null) {
+            LauncherBackendAPIHolder.getApi().shutdown();
         }
     }
 }

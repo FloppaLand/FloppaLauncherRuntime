@@ -2,15 +2,15 @@ package pro.gravit.launcher.gui.dialogs;
 
 import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.Pane;
-import pro.gravit.launcher.gui.JavaFXApplication;
+import pro.gravit.launcher.gui.core.JavaFXApplication;
 import pro.gravit.launcher.gui.helper.LookupHelper;
-import pro.gravit.launcher.gui.impl.AbstractVisualComponent;
-import pro.gravit.launcher.gui.impl.ContextHelper;
+import pro.gravit.launcher.gui.core.impl.FxComponent;
+import pro.gravit.launcher.gui.core.impl.ContextHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractDialog extends AbstractVisualComponent {
+public abstract class AbstractDialog extends FxComponent {
     private final List<ContextHelper.GuiExceptionRunnable> onClose = new ArrayList<>(1);
 
     protected AbstractDialog(String fxmlPath, JavaFXApplication application) {

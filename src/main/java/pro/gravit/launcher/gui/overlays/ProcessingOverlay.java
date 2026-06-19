@@ -1,24 +1,29 @@
 package pro.gravit.launcher.gui.overlays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javafx.animation.Interpolator;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Labeled;
+import pro.gravit.launcher.gui.core.JavaFXApplication;
+import pro.gravit.launcher.gui.core.impl.FxOverlay;
 import javafx.animation.ScaleTransition;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 import pro.gravit.launcher.gui.JavaFXApplication;
 import pro.gravit.launcher.gui.helper.LookupHelper;
-import pro.gravit.launcher.gui.impl.AbstractStage;
-import pro.gravit.launcher.gui.impl.ContextHelper;
-import pro.gravit.launcher.base.request.Request;
-import pro.gravit.launcher.base.request.WebSocketEvent;
-import pro.gravit.utils.helper.LogHelper;
+import pro.gravit.launcher.gui.core.impl.FxStage;
+import pro.gravit.launcher.gui.core.impl.ContextHelper;
 
-import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-public class ProcessingOverlay extends AbstractOverlay {
+public class ProcessingOverlay extends FxOverlay {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ProcessingOverlay.class);
+
     private Labeled description;
     private ImageView logo;
 
@@ -62,31 +67,26 @@ public class ProcessingOverlay extends AbstractOverlay {
         description.setText(e.toString());
     }
 
-    public final <T extends WebSocketEvent> void processRequest(AbstractStage stage, String message, Request<T> request,
+    public final <T> void processRequest(FxStage stage, String message, CompletableFuture<T> request,
             Consumer<T> onSuccess, EventHandler<ActionEvent> onError) {
         processRequest(stage, message, request, onSuccess, null, onError);
     }
 
-    public final <T extends WebSocketEvent> void processRequest(AbstractStage stage, String message, Request<T> request,
+    public final <T> void processRequest(FxStage stage, String message, CompletableFuture<T> request,
             Consumer<T> onSuccess, Consumer<Throwable> onException, EventHandler<ActionEvent> onError) {
         try {
             ContextHelper.runInFxThreadStatic(() -> show(stage, (e) -> {
-                try {
-                    description.setText(message);
-                    application.service.request(request).thenAccept((result) -> {
-                        LogHelper.dev("RequestFuture complete normally");
-                        onSuccess.accept(result);
-                        ContextHelper.runInFxThreadStatic(() -> hide(0, null));
-                    }).exceptionally((error) -> {
-                        if (onException != null) onException.accept(error);
-                        else ContextHelper.runInFxThreadStatic(() -> errorHandle(error.getCause()));
-                        ContextHelper.runInFxThreadStatic(() -> hide(2500, onError));
-                        return null;
-                    });
-                } catch (IOException ex) {
-                    errorHandle(ex);
-                    hide(2500, onError);
-                }
+                description.setText(message);
+                request.thenAccept((result) -> {
+                    logger.trace("RequestFuture complete normally");
+                    onSuccess.accept(result);
+                    ContextHelper.runInFxThreadStatic(() -> hide(0, null));
+                }).exceptionally((error) -> {
+                    if (onException != null) onException.accept(error);
+                    else ContextHelper.runInFxThreadStatic(() -> errorHandle(error.getCause()));
+                    ContextHelper.runInFxThreadStatic(() -> hide(1500, onError));
+                    return null;
+                });
             }));
         } catch (Exception e) {
             ContextHelper.runInFxThreadStatic(() -> errorHandle(e));

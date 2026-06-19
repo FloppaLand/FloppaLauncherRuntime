@@ -2,7 +2,7 @@ package pro.gravit.launcher.gui.dialogs;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import pro.gravit.launcher.gui.JavaFXApplication;
+import pro.gravit.launcher.gui.core.JavaFXApplication;
 import pro.gravit.launcher.gui.helper.LookupHelper;
 
 public class ApplyDialog extends AbstractDialog {
