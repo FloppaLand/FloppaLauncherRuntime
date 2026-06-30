@@ -133,10 +133,10 @@ public class SkinUtils {
     public static class SkinEntry {
         final URI url;
         final URI avatarUrl;
-        SoftReference<Optional<BufferedImage>> imageRef = new SoftReference<>(null);
-        SoftReference<Optional<BufferedImage>> avatarRef = new SoftReference<>(null);
-        SoftReference<Optional<Image>> fxImageRef = new SoftReference<>(null);
-        SoftReference<Optional<Image>> fxAvatarRef = new SoftReference<>(null);
+        SoftReference<BufferedImage> imageRef = new SoftReference<>(null);
+        SoftReference<BufferedImage> avatarRef = new SoftReference<>(null);
+        SoftReference<Image> fxImageRef = new SoftReference<>(null);
+        SoftReference<Image> fxAvatarRef = new SoftReference<>(null);
 
         public URI getUrl() {
             return url;
@@ -157,49 +157,49 @@ public class SkinUtils {
         }
 
         public synchronized BufferedImage getFullImage() {
-            Optional<BufferedImage> result = imageRef.get();
+            BufferedImage result = imageRef.get();
             if (result == null) { // It is normal
-                result = Optional.ofNullable(downloadSkin(url));
+                result = downloadSkin(url);
                 imageRef = new SoftReference<>(result);
             }
-            return result.orElse(null);
+            return result;
         }
 
         public synchronized Image getFullFxImage() {
-            Optional<Image> result = fxImageRef.get();
+            Image result = fxImageRef.get();
             if (result == null) { // It is normal
                 BufferedImage image = getFullImage();
                 if (image == null) return null;
-                result = Optional.ofNullable(convertToFxImage(image));
+                result = convertToFxImage(image);
                 fxImageRef = new SoftReference<>(result);
             }
-            return result.orElse(null);
+            return result;
         }
 
         public synchronized BufferedImage getHeadImage() {
-            Optional<BufferedImage> result = avatarRef.get();
+            BufferedImage result = avatarRef.get();
             if (result == null) { // It is normal
                 if(avatarUrl != null) {
-                    result = Optional.ofNullable(downloadSkin(avatarUrl));
+                    result = downloadSkin(avatarUrl);
                 } else {
                     BufferedImage image = getFullImage();
                     if (image == null) return null;
-                    result = Optional.of(sumBufferedImage(getHeadFromSkinImage(image), getHeadLayerFromSkinImage(image)));
+                    result = sumBufferedImage(getHeadFromSkinImage(image), getHeadLayerFromSkinImage(image));
                 }
                 avatarRef = new SoftReference<>(result);
             }
-            return result.orElse(null);
+            return result;
         }
 
         public synchronized Image getHeadFxImage() {
-            Optional<Image> result = fxAvatarRef.get();
+            Image result = fxAvatarRef.get();
             if (result == null) { // It is normal
                 BufferedImage image = getHeadImage();
                 if (image == null) return null;
-                result = Optional.ofNullable(convertToFxImage(image));
+                result = convertToFxImage(image);
                 fxAvatarRef = new SoftReference<>(result);
             }
-            return result.orElse(null);
+            return result;
         }
     }
 }
