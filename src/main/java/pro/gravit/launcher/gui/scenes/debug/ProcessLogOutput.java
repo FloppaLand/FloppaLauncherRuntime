@@ -58,8 +58,11 @@ public class ProcessLogOutput extends LauncherBackendAPI.RunCallback {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 Gson gson = new Gson();
-
-                String requestBody = gson.toJson(new MclogsRequest(getText(), "GravitLauncher"));
+                String text = getText();
+                if (text.isEmpty()) {
+                    text = "test test test";
+                }
+                String requestBody = gson.toJson(new MclogsRequest(text, "GravitLauncher"));
                 HttpClient client = HttpClient.newHttpClient();
 
 
@@ -72,10 +75,13 @@ public class ProcessLogOutput extends LauncherBackendAPI.RunCallback {
 
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-                if (response.statusCode() != 200) {
-                    throw new RuntimeException("API Error " + response.statusCode());
-                }
                 MclogsResponse mclogsResponse = gson.fromJson(response.body(), MclogsResponse.class);
+
+                if (response.statusCode() != 200) {
+                    System.out.println("Код ответа: " + response.statusCode());
+                    System.out.println("Ответ сервера mclo.gs: " + mclogsResponse);
+                    throw new RuntimeException("API Error " + response.statusCode() + "\n" + mclogsResponse.error);
+                }
 
                 return mclogsResponse.url;
 

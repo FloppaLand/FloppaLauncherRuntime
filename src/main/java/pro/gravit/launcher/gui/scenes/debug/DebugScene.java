@@ -40,14 +40,12 @@ public class DebugScene extends FxScene {
         LookupHelper.<ButtonBase>lookupIfPossible(header, "#controls", "#upload").ifPresent((x) ->
             x.setOnAction((e) -> {
 
-                // Блокируем кнопку на время загрузки, чтобы не кликали дважды (по желанию)
                 x.setDisable(true);
 
                 processLogOutput.upload().thenAccept(url -> {
                     Platform.runLater(() -> {
-                        x.setDisable(false); // разблокируем кнопку
+                        x.setDisable(false);
 
-                        // Буфер обмена - это часть ОС/UI, логичнее держать это на фронтенде
                         ClipboardContent clipboardContent = new ClipboardContent();
                         clipboardContent.putString(url);
                         Clipboard clipboard = Clipboard.getSystemClipboard();
