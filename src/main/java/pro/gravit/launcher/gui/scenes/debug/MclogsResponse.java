@@ -1,11 +1,22 @@
 package pro.gravit.launcher.gui.scenes.debug;
 
+import com.google.gson.annotations.SerializedName;
+
 public class MclogsResponse {
-    public boolean success; // Успешна ли загрузка
-    public String id;       // Уникальный ID лога
-    public String url;      // Ссылка (https://mclo.gs/...)
-    public String raw;      // Ссылка на сырой текст
-    public String error;    // Текст ошибки (если success = false)
+    @SerializedName("success")
+    public boolean success;
+
+    @SerializedName("id")
+    public String id;
+
+    @SerializedName("url")
+    public String url;
+
+    @SerializedName("raw")
+    public String raw;
+
+    @SerializedName("error")
+    public String error;
 
     @Override
     public String toString() {
