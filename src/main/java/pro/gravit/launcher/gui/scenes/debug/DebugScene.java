@@ -1,8 +1,11 @@
 package pro.gravit.launcher.gui.scenes.debug;
 
+import javafx.application.Platform;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.Pane;
 import pro.gravit.launcher.core.backend.LauncherBackendAPI;
 import pro.gravit.launcher.gui.components.BasicUserControls;
@@ -34,13 +37,42 @@ public class DebugScene extends FxScene {
         LookupHelper.<Label>lookupIfPossible(layout, "#version")
                     .ifPresent((v) -> v.setText(JavaRuntimeModule.getMiniLauncherInfo()));
         LookupHelper.<ButtonBase>lookupIfPossible(header, "#controls", "#copy").ifPresent((x) -> x.setOnAction((e) -> processLogOutput.copyToClipboard()));
-        LookupHelper.<ButtonBase>lookupIfPossible(header, "#controls", "#copy").ifPresent((x) -> x.setOnAction((e) -> processLogOutput.upload()
-                                                                                                                                      .thenAccept(response -> {
-            application.messageManager.createNotification(application.getTranslation("runtime.overlay.debug.uploadlog.success.header"), application.getTranslation("runtime.overlay.debug.uploadlog.success.description"));
-        }).exceptionally(ex -> {
-            application.messageManager.createNotification(application.getTranslation("runtime.overlay.debug.uploadlog.success.header"), ex.getMessage());
-            return null;
-        })));
+        LookupHelper.<ButtonBase>lookupIfPossible(header, "#controls", "#upload").ifPresent((x) ->
+            x.setOnAction((e) -> {
+
+                // Блокируем кнопку на время загрузки, чтобы не кликали дважды (по желанию)
+                x.setDisable(true);
+
+                processLogOutput.upload().thenAccept(url -> {
+                    Platform.runLater(() -> {
+                        x.setDisable(false); // разблокируем кнопку
+
+                        // Буфер обмена - это часть ОС/UI, логичнее держать это на фронтенде
+                        ClipboardContent clipboardContent = new ClipboardContent();
+                        clipboardContent.putString(url);
+                        Clipboard clipboard = Clipboard.getSystemClipboard();
+                        clipboard.setContent(clipboardContent);
+
+                        application.messageManager.createNotification(
+                            application.getTranslation("runtime.overlay.debug.uploadlog.success.header"),
+                            application.getTranslation("runtime.overlay.debug.uploadlog.success.description")
+                        );
+                    });
+                }).exceptionally(ex -> {
+                    Platform.runLater(() -> {
+                        x.setDisable(false);
+
+                        Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+
+                        application.messageManager.createNotification(
+                            "Ошибка загрузки",
+                            cause.getMessage()
+                        );
+                    });
+                    return null;
+                });
+            })
+        );
         LookupHelper.<ButtonBase>lookup(header, "#back").setOnAction((e) -> {
             processLogOutput.detach();
             processLogOutput = new ProcessLogOutput(output, !application.runtimeSettings.globalSettings.debugAllClients);

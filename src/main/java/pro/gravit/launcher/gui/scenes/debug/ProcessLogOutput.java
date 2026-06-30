@@ -1,7 +1,6 @@
 package pro.gravit.launcher.gui.scenes.debug;
 
-import gs.mclo.api.Log;
-import gs.mclo.api.MclogsClient;
+import com.google.gson.Gson;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -9,7 +8,14 @@ import pro.gravit.launcher.core.backend.LauncherBackendAPI;
 import pro.gravit.launcher.gui.core.JavaFXApplication;
 import pro.gravit.launcher.gui.core.impl.ContextHelper;
 
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ProcessLogOutput extends LauncherBackendAPI.RunCallback {
@@ -49,14 +55,35 @@ public class ProcessLogOutput extends LauncherBackendAPI.RunCallback {
         putStringToClipboard(getText());
     }
 
-    public CompletableFuture<Void> upload() {
-        Log log = new Log(getText());
-        MclogsClient client = new MclogsClient("GravitLauncherRuntime", "1.0.0");
+    public CompletableFuture<String> upload() {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Gson gson = new Gson();
 
-        return client.uploadLog(log)
-              .thenAccept(response -> {
-                putStringToClipboard(response.getUrl());
-              });
+                String requestBody = gson.toJson(new MclogsRequest(getText(), "GravitLauncher"));
+                HttpClient client = HttpClient.newHttpClient();
+
+
+                HttpRequest request = HttpRequest.newBuilder()
+                                                 .uri(URI.create("https://api.mclo.gs/1/log"))
+                                                 .header("Content-Type", "application/json; charset=utf-8")
+                                                 .header("Accept", "application/json")
+                                                 .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
+                                                 .build();
+
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+                if (response.statusCode() != 200) {
+                    throw new RuntimeException("API Error " + response.statusCode());
+                }
+                MclogsResponse mclogsResponse = gson.fromJson(response.body(), MclogsResponse.class);
+
+                return mclogsResponse.url;
+
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+        });
     }
 
     public void append(String text) {
@@ -145,3 +172,4 @@ public class ProcessLogOutput extends LauncherBackendAPI.RunCallback {
         }
     }
 }
+
