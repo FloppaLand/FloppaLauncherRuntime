@@ -1,5 +1,7 @@
 package pro.gravit.launcher.gui.scenes.debug;
 
+import gs.mclo.api.Log;
+import gs.mclo.api.MclogsClient;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -7,6 +9,7 @@ import pro.gravit.launcher.core.backend.LauncherBackendAPI;
 import pro.gravit.launcher.gui.core.JavaFXApplication;
 import pro.gravit.launcher.gui.core.impl.ContextHelper;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ProcessLogOutput extends LauncherBackendAPI.RunCallback {
@@ -35,11 +38,25 @@ public class ProcessLogOutput extends LauncherBackendAPI.RunCallback {
         output.clear();
     }
 
-    public void copyToClipboard() {
+    private void putStringToClipboard(String string) {
         ClipboardContent clipboardContent = new ClipboardContent();
-        clipboardContent.putString(getText());
+        clipboardContent.putString(string);
         Clipboard clipboard = Clipboard.getSystemClipboard();
         clipboard.setContent(clipboardContent);
+    }
+
+    public void copyToClipboard() {
+        putStringToClipboard(getText());
+    }
+
+    public CompletableFuture<Void> upload() {
+        Log log = new Log(getText());
+        MclogsClient client = new MclogsClient("GravitLauncherRuntime", "1.0.0");
+
+        return client.uploadLog(log)
+              .thenAccept(response -> {
+                putStringToClipboard(response.getUrl());
+              });
     }
 
     public void append(String text) {

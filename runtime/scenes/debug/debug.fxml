@@ -21,6 +21,7 @@
       <Label id="version" alignment="CENTER_RIGHT" contentDisplay="RIGHT" disable="true" maxWidth="600.0" opacity="0.0" prefHeight="20.0" text="Launcher 5.1.0.0 Java: 1.8 u231 x64" textFill="#b3b8d5" AnchorPane.leftAnchor="73.0" AnchorPane.topAnchor="66.0" />
       <!-- Кнопки управления -->
       <HBox id="controls" spacing="10.0" AnchorPane.rightAnchor="29.0" AnchorPane.topAnchor="34.0">
+         <fx:include source="../../components/buttons/upload.fxml" />
          <fx:include source="../../components/buttons/copy.fxml" />
          <fx:include source="../../components/buttons/kill.fxml" />
          <fx:include source="../../components/buttons/minimize.fxml" />

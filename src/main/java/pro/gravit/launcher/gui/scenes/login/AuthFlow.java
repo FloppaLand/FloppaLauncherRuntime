@@ -191,7 +191,6 @@ public class AuthFlow {
             }
         }
 
-        // Пробуем тихую авторизацию только если токен есть И провайдер совпадает с сохранённым
         if (hasOAuthToken() && isSameAuthProvider()) {
             tryAutoLogin().thenAccept(success -> {
                 if (!success) {

@@ -88,7 +88,10 @@ public class LoginScene extends FxScene {
             LookupHelper.<Text>lookup(header, "#createAccount")
                         .setOnMouseClicked((e) -> application.openURL(application.guiModuleConfig.createAccountURL));
         }
-
+        if (application.guiModuleConfig.discordServerURL != null) {
+            LookupHelper.<Text>lookup(header, "#discord")
+                        .setOnMouseClicked((e) -> application.openURL(application.guiModuleConfig.discordServerURL));
+        }
         //if (application.guiModuleConfig.forgotPassURL != null) {
         //    LookupHelper.<Text>lookup(header, "#forgotPass")
         //                .setOnMouseClicked((e) -> application.openURL(application.guiModuleConfig.forgotPassURL));

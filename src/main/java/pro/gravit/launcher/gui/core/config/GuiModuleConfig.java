@@ -7,6 +7,8 @@ public class GuiModuleConfig {
     public String createAccountURL;
     @LauncherInject(value = "modules.javaruntime.forgotpassurl")
     public String forgotPassURL;
+    @LauncherInject(value = "modules.javaruntime.discord")
+    public String discordServerURL;
     @LauncherInject(value = "modules.javaruntime.lazy")
     public boolean lazy;
     @LauncherInject(value = "modules.javaruntime.disableofflinemode")

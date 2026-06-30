@@ -34,6 +34,13 @@ public class DebugScene extends FxScene {
         LookupHelper.<Label>lookupIfPossible(layout, "#version")
                     .ifPresent((v) -> v.setText(JavaRuntimeModule.getMiniLauncherInfo()));
         LookupHelper.<ButtonBase>lookupIfPossible(header, "#controls", "#copy").ifPresent((x) -> x.setOnAction((e) -> processLogOutput.copyToClipboard()));
+        LookupHelper.<ButtonBase>lookupIfPossible(header, "#controls", "#copy").ifPresent((x) -> x.setOnAction((e) -> processLogOutput.upload()
+                                                                                                                                      .thenAccept(response -> {
+            application.messageManager.createNotification(application.getTranslation("runtime.overlay.debug.uploadlog.success.header"), application.getTranslation("runtime.overlay.debug.uploadlog.success.description"));
+        }).exceptionally(ex -> {
+            application.messageManager.createNotification(application.getTranslation("runtime.overlay.debug.uploadlog.success.header"), ex.getMessage());
+            return null;
+        })));
         LookupHelper.<ButtonBase>lookup(header, "#back").setOnAction((e) -> {
             processLogOutput.detach();
             processLogOutput = new ProcessLogOutput(output, !application.runtimeSettings.globalSettings.debugAllClients);
