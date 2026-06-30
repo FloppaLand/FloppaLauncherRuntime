@@ -68,8 +68,9 @@ public class ProcessLogOutput extends LauncherBackendAPI.RunCallback {
 
                 HttpRequest request = HttpRequest.newBuilder()
                                                  .uri(URI.create("https://api.mclo.gs/1/log"))
-                                                 .header("Content-Type", "application/json; charset=utf-8")
+                                                 .header("Content-Type", "application/json")
                                                  .header("Accept", "application/json")
+                                                 .header("User-Agent", "GravitLauncher-RuntimeModule/1.0")
                                                  .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
                                                  .build();
 
