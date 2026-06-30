@@ -51,7 +51,7 @@ public class LoginScene extends FxScene {
     public void doInit() {
         LookupHelper.<ButtonBase>lookup(header, "#controls", "#settings").setOnAction((e) -> {
             try {
-                switchScene(application.gui.debugScene);
+                switchScene(application.gui.globalSettingsScene);
             } catch (Exception exception) {
                 errorHandle(exception);
             }
@@ -86,14 +86,7 @@ public class LoginScene extends FxScene {
         content = LookupHelper.lookup(layout, "#content");
         if (application.guiModuleConfig.createAccountURL != null) {
             LookupHelper.<Text>lookup(header, "#createAccount")
-                        .setOnMouseClicked((e) -> {
-                            application.openURL(application.guiModuleConfig.createAccountURL);
-                            try {
-                                switchScene(application.gui.debugScene);
-                            } catch (Exception ex) {
-                                throw new RuntimeException(ex);
-                            }
-                        });
+                        .setOnMouseClicked((e) -> application.openURL(application.guiModuleConfig.createAccountURL));
         }
         if (application.guiModuleConfig.discordServerURL != null) {
             LookupHelper.<Text>lookup(header, "#discord")

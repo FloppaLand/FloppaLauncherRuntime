@@ -63,7 +63,7 @@ public class DebugScene extends FxScene {
                         Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
 
                         application.messageManager.createNotification(
-                            "Ошибка загрузки",
+                            application.getTranslation("runtime.overlay.debug.uploadlog.fail.header"),
                             cause.getMessage()
                         );
                     });
