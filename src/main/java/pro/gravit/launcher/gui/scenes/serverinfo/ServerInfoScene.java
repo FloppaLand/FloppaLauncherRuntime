@@ -39,7 +39,7 @@ public class ServerInfoScene extends FxScene implements SceneSupportUserBlock {
             }
         });
 
-        LookupHelper.<ButtonBase>lookup(header, "#controls", "#clientSettings").setOnAction((e) -> {
+        LookupHelper.<ButtonBase>lookup(layout, "#settingsButtons", "#clientSettings").setOnAction((e) -> {
             try {
                 if (application.profileService.getCurrentProfile() == null) return;
                 switchScene(application.gui.optionsScene);
@@ -48,7 +48,7 @@ public class ServerInfoScene extends FxScene implements SceneSupportUserBlock {
                 errorHandle(ex);
             }
         });
-        LookupHelper.<ButtonBase>lookup(header, "#controls", "#settings").setOnAction((e) -> {
+        LookupHelper.<ButtonBase>lookup(layout, "#settingsButtons", "#settings").setOnAction((e) -> {
             try {
                 switchScene(application.gui.settingsScene);
                 application.gui.settingsScene.reset();

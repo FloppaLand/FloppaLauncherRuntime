@@ -1,5 +1,6 @@
 package pro.gravit.launcher.gui.scenes.settings;
 
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
@@ -84,7 +85,9 @@ public class SettingsScene extends BaseSettingsScene implements SceneSupportUser
         serverButtonContainer.getChildren().clear();
         ServerButton serverButton = ServerButton.createServerButton(application, profile);
         serverButton.addTo(serverButtonContainer);
-        serverButton.enableSaveButton(null, (e) -> {
+
+        Button saveButton = LookupHelper.lookup(layout, "#saveButton");
+        saveButton.setOnAction((e) -> {
             try {
                 LauncherBackendAPIHolder.getApi().saveClientProfileSettings(profileSettings);
                 switchToBackScene();
@@ -92,7 +95,10 @@ public class SettingsScene extends BaseSettingsScene implements SceneSupportUser
                 errorHandle(exception);
             }
         });
-        serverButton.enableResetButton(null, (e) -> reset());
+
+        Button resetButton = LookupHelper.lookup(layout, "#resetButton");
+        resetButton.setOnAction((e) -> reset());
+
         for(var flag : profileSettings.getAvailableFlags()) {
             add(flag.name(), profileSettings.hasFlag(flag), (value) -> {
                 if(value) {

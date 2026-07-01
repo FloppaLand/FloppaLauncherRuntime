@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import org.fxmisc.richtext.StyleClassedTextArea;
 import pro.gravit.launcher.core.backend.LauncherBackendAPI;
 import pro.gravit.launcher.gui.core.JavaFXApplication;
 import pro.gravit.launcher.gui.core.impl.ContextHelper;
@@ -20,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ProcessLogOutput extends LauncherBackendAPI.RunCallback {
     static final long MAX_LENGTH = 1024 * 256;
     static final int REMOVE_LENGTH = 1024 * 16;
-    private final TextArea output;
+    private final StyleClassedTextArea output;
     private final Object syncObject = new Object();
     private String appendString = "";
     private boolean isOutputRunned;
@@ -30,7 +31,7 @@ public class ProcessLogOutput extends LauncherBackendAPI.RunCallback {
     private AtomicBoolean isRunned = new AtomicBoolean();
     private AtomicBoolean isAttached = new AtomicBoolean(true);
 
-    public ProcessLogOutput(TextArea output, boolean exitWhenStarted) {
+    public ProcessLogOutput(StyleClassedTextArea output, boolean exitWhenStarted) {
         this.output = output;
         this.exitWhenStarted = exitWhenStarted;
     }
@@ -108,10 +109,17 @@ public class ProcessLogOutput extends LauncherBackendAPI.RunCallback {
         if (needRun) {
             ContextHelper.runInFxThreadStatic(() -> {
                 synchronized (syncObject) {
-                    if (output.lengthProperty().get() > MAX_LENGTH) {
-                        output.deleteText(0, REMOVE_LENGTH);
+
+                    if (text.contains("WARN") || text.contains("WARNING")) {
+                        output.append(text + "\n", "log-warn");
+                    } else if (text.contains("ERROR") || text.contains("FATAL")) {
+                        output.append(text + "\n", "log-error");
+                    } else if (text.contains("INFO") || text.contains("DEBUG")) {
+                        output.append(text + "\n", "log-info");
+                    } else {
+                        output.append(text + "\n", "log-text");
                     }
-                    output.appendText(appendString);
+                    output.requestFollowCaret();
                     appendString = "";
                     isOutputRunned = false;
                 }

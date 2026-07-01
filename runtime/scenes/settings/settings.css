@@ -1,6 +1,6 @@
 /* RAM настройки */
 Slider>.track {
-    -fx-background-color: linear-gradient(to right, #8d4ce0, #8543e4, #7b39e9, #702eed, #6223f2);
+    -fx-background-color: linear-gradient(to right, #0B4D22 0%, #16A34A 50%, #ED5653 100%);
     -fx-pref-height: 5px;
 }
 Slider>.thumb {
@@ -52,4 +52,38 @@ Slider .axis {
     -fx-background-color: -fx-colors-base;
     -fx-background-radius: 0 10px 10px 0;
     -fx-text-fill: -fx-colors-text;
+}
+
+.action-button {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 12px 16px;
+    -fx-background-radius: 10px;
+    -fx-alignment: center;
+    -fx-cursor: hand;
+    -fx-text-fill: -fx-colors-text;
+}
+
+/* Кнопка "Сброс" (Красная) */
+.reset-button {
+    -fx-background-color: #d9534f;
+}
+.reset-button:hover {
+    -fx-background-color: #c9302c;
+}
+.reset-button:pressed {
+    -fx-background-color: #ac2925;
+    -fx-text-fill: -fx-colors-text-pressed;
+}
+
+/* Кнопка "Сохранить" (Зеленая) */
+.save-button {
+    -fx-background-color: #28a745;
+}
+.save-button:hover {
+    -fx-background-color: #218838;
+}
+.save-button:pressed {
+    -fx-background-color: #1e7e34;
+    -fx-text-fill: -fx-colors-text-pressed;
 }

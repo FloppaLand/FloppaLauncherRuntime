@@ -1,4 +1,78 @@
 #version {
     -fx-text-fill: -fx-colors-text-secondary;
-    -fx-font-size: 8pt;
+    -fx-font-size: 11px;
+}
+
+/* Окно консоли */
+#output-detail {
+    -fx-background-color: -fx-colors-baseGA;
+    -fx-background-radius: 15px;
+    -fx-padding: 0px;
+}
+
+/* Сам текстовый компонент RichTextFX */
+#output {
+    -fx-background-color: transparent;
+    -fx-font-family: "Consolas", "Courier New", "JetBrains Mono", monospace;
+    -fx-font-size: 13px;
+    -fx-padding: 15px 25px 15px 15px;
+}
+
+/* --- Цвета для логов (RichTextFX использует TextFlow, поэтому нужен -fx-fill) --- */
+.log-time  { -fx-fill: #75715e; } /* Серый цвет для времени */
+.log-info  { -fx-fill: #a6e22e; } /* Зеленый */
+.log-warn  { -fx-fill: #fd971f; } /* Оранжевый */
+.log-error { -fx-fill: #f92672; -fx-font-weight: bold; } /* Красный, жирный */
+.log-debug { -fx-fill: #66d9ef; } /* Голубой */
+.log-trace { -fx-fill: #ae81ff; } /* Фиолетовый */
+.log-text  { -fx-fill: #f8f8f2; } /* Стандартный белый/светло-серый */
+
+/* --- Стилизация скроллбара внутри RichTextFX --- */
+.virtualized-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0 15px 15px 0;
+    -fx-pref-width: 10px;
+    -fx-padding: 0px;
+}
+
+.virtualized-scroll-pane .scroll-bar .thumb {
+    -fx-background-color: -fx-violet;
+    -fx-background-radius: 5px;
+}
+
+.virtualized-scroll-pane .scroll-bar .thumb:hover {
+    -fx-background-color: -fx-violet-hover;
+}
+
+/* --- Строка поиска --- */
+#searchField {
+    -fx-background-color: -fx-colors-baseGA;
+    -fx-text-fill: -fx-colors-text;
+    -fx-prompt-text-fill: -fx-colors-text-secondary;
+    -fx-background-radius: 5px;
+    -fx-padding: 6px 12px;
+    -fx-font-size: 13px;
+    -fx-border-color: transparent;
+}
+
+#searchField:focused {
+    -fx-border-color: -fx-violet;
+    -fx-border-radius: 5px;
+}
+
+.arrow-button {
+    -fx-text-fill: -fx-colors-text;
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 6px 10px;
+    -fx-font-size: 12px;
+    -fx-border-color: -fx-colors-text-secondary;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+}
+
+
+/* --- Цвет выделения текста поиска (RichTextFX) --- */
+.styled-text-area .selection {
+    -fx-fill: rgba(141, 76, 224, 0.6); /* Красивый фиолетовый цвет выделения */
 }

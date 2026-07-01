@@ -9,3 +9,31 @@ ScrollPane Label {
     -fx-font-size: 14px;
     -fx-text-fill: -fx-colors-text;
 }
+
+/* Стили для кнопок настроек */
+.text-button {
+    -fx-background-color: -fx-gray-button;
+    -fx-text-fill: -fx-colors-text;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 12px 16px;
+    -fx-background-radius: 10px;
+    -fx-alignment: center;
+    -fx-cursor: hand;
+}
+
+.text-button:hover {
+    -fx-background-color: -fx-gray-button-hover;
+    -fx-text-fill: -fx-colors-text-hover;
+}
+
+.text-button:pressed {
+    -fx-background-color: rgba(255, 255, 255, 0.15); /* Более мягкий эффект нажатия */
+    -fx-text-fill: -fx-colors-text-pressed;
+}
+
+#settingsButtons {
+    -fx-alignment: center;
+    /* Убрал верхний padding, так как AnchorPane.bottomAnchor уже отлично задает расположение */
+    -fx-padding: 0;
+}

@@ -123,6 +123,7 @@ public abstract class FxComponent extends VisualComponentBase {
     }
 
     public void errorHandle(Throwable e) {
+        e.printStackTrace();
         String message = null;
         if (e instanceof CompletionException) {
             e = e.getCause();

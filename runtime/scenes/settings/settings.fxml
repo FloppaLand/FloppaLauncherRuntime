@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
@@ -12,6 +13,8 @@
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane fx:id="layout" prefHeight="560.0" prefWidth="930.0" styleClass="background" stylesheets="@settings.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+
+    <!-- Навбар -->
     <AnchorPane id="header" prefHeight="80.0" AnchorPane.leftAnchor="300.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <Label maxWidth="400.0" prefHeight="32.0" styleClass="scene-header" text="%runtime.scenes.settings.header" AnchorPane.leftAnchor="35.0" AnchorPane.topAnchor="34.0" />
         <HBox id="controls" spacing="10.0" AnchorPane.rightAnchor="29.0" AnchorPane.topAnchor="34.0">
@@ -19,10 +22,14 @@
             <fx:include source="../../components/buttons/exit.fxml" />
         </HBox>
     </AnchorPane>
+
     <fx:include source="../../components/panels/leftpanel.fxml" />
+
+    <!-- Правая панель настроек -->
     <AnchorPane prefHeight="480.0" prefWidth="630.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="300.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="80.0">
         <children>
-            <ScrollPane id="settingslist" fitToWidth="true" hbarPolicy="NEVER" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="0.0">
+            <!-- Изменен bottomAnchor на 75.0, чтобы освободить место для кнопок -->
+            <ScrollPane id="settingslist" fitToWidth="true" hbarPolicy="NEVER" AnchorPane.bottomAnchor="75.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="0.0">
                 <VBox spacing="15.0">
                     <children>
                         <VBox>
@@ -86,6 +93,14 @@
                     <Insets />
                 </opaqueInsets>
             </ScrollPane>
+
+            <!-- Новые кнопки Сброс и Сохранить -->
+            <HBox spacing="15.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0">
+                <children>
+                    <Button id="resetButton" text="СБРОС" styleClass="action-button, reset-button" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                    <Button id="saveButton" text="СОХРАНИТЬ" styleClass="action-button, save-button" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                </children>
+            </HBox>
         </children>
     </AnchorPane>
 </AnchorPane>

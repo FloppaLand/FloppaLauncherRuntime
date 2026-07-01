@@ -31,6 +31,7 @@ public class GuiModuleConfig {
         GuiModuleConfig config = new GuiModuleConfig();
         config.createAccountURL = "https://gravitlauncher.com/createAccount.php";
         config.forgotPassURL = "https://gravitlauncher.com/fogotPass.php";
+        config.discordServerURL = "https://discord.gg";
         config.lazy = false;
         config.disableOfflineMode = false;
         config.autoAuth = false;

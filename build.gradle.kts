@@ -1,6 +1,7 @@
 plugins {
     id("java-library")
     id("org.openjfx.javafxplugin") version "0.1.0"
+    id("com.gradleup.shadow") version "8.3.0"
 }
 
 java {
@@ -38,6 +39,8 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+
+    implementation("org.fxmisc.richtext:richtextfx:0.11.7")
 }
 
 tasks.test {
@@ -60,4 +63,12 @@ tasks.register<JavaExec>("runDev") {
         "-Dlauncherdebug.projectname=FLOPPALAND",
         "-Dlauncherdebug.websocket=ws://localhost:9274/api"
     )
+}
+
+tasks.shadowJar {
+    archiveClassifier.set("")
+}
+
+tasks.build {
+    dependsOn(tasks.shadowJar)
 }
