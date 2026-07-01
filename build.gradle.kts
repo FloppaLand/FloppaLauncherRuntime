@@ -40,7 +40,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
-    implementation("org.fxmisc.richtext:richtextfx:0.11.7")
+    implementation("org.fxmisc.richtext:richtextfx:0.10.8")
 }
 
 tasks.test {
@@ -67,6 +67,10 @@ tasks.register<JavaExec>("runDev") {
 
 tasks.shadowJar {
     archiveClassifier.set("")
+
+    dependencies {
+        exclude(dependency("org.openjfx:.*:.*"))
+    }
 }
 
 tasks.build {
